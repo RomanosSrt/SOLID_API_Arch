@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace HR.LeaveManagement.Application.Features.LeaveType.Queries.GetAllLeaveTypes;
 
-public class GetLeaveTypesQueryHandler : IRequestHandler<GetLeaveTypesDetailsQuery, List<LeaveTypeDto>>
+public class GetLeaveTypesQueryHandler : IRequestHandler<GetLeaveTypesQuery, List<LeaveTypeDto>>
 {
     private readonly IMapper _mapper;
     private readonly ILeaveTypeRepository _leaveTypeRepository;
@@ -24,7 +24,7 @@ public class GetLeaveTypesQueryHandler : IRequestHandler<GetLeaveTypesDetailsQue
         this._logger = logger;
     }
 
-    public async Task<List<LeaveTypeDto>> Handle(GetLeaveTypesDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<List<LeaveTypeDto>> Handle(GetLeaveTypesQuery request, CancellationToken cancellationToken)
     {
         //Query database
         var leaveTypes = await _leaveTypeRepository.GetAsync();
