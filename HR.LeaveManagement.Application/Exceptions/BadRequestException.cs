@@ -11,12 +11,8 @@ public class BadRequestException : Exception
 
     public BadRequestException(string message, FluentValidation.Results.ValidationResult validationResult) : base(message)
     {
-        validationErrors = new();
-        foreach (var error in validationResult.Errors)
-        {
-            validationErrors.Add(error.ErrorMessage);
-        }
+        validationErrors = validationResult.ToDictionary();
     }
 
-    public List<string> validationErrors { get; set; }
+    public IDictionary<string, string[]> validationErrors { get; set; }
 }

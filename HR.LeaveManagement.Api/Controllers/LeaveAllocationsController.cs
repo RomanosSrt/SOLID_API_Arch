@@ -1,4 +1,8 @@
-﻿using HR.LeaveManagement.Application.Features.LeaveAllocation.Queries.GetAllLeaveAllocations;
+﻿using HR.LeaveManagement.Application.Features.LeaveAllocation.Commands.CreateLeaveAllocation;
+using HR.LeaveManagement.Application.Features.LeaveAllocation.Commands.DeleteLeaveAllocation;
+using HR.LeaveManagement.Application.Features.LeaveAllocation.Commands.UpdateLeaveAllocation;
+using HR.LeaveManagement.Application.Features.LeaveAllocation.Queries.GetAllLeaveAllocations;
+using HR.LeaveManagement.Application.Features.LeaveAllocation.Queries.GetLeaveAllocationDetails;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +13,7 @@ namespace HR.LeaveManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class LeaveAllocationsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,32 +27,51 @@ namespace HR.LeaveManagement.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<LeaveAllocationDto>>> Get(bool isLoggedInUser = false)
         {
-            return new string[] { "value1", "value2" };
+            var leaveAllocations = await _mediator.Send(new GetLeaveAllocationListQuery());
+            return Ok(leaveAllocations);
         }
 
         // GET api/<LeaveAllocationsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<List<LeaveAllocationDetailsDto>>> Get(int id)
         {
-            return "value";
+            var leaveAllocation = await _mediator.Send(new GetLeaveAllocationDetailQuery {  Id = id });
+            return Ok(leaveAllocation);
         }
 
         // POST api/<LeaveAllocationsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> Post(CreateLeaveAllocationCommand leaveAllocation)
         {
+            var response = await _mediator.Send(leaveAllocation);
+            return CreatedAtAction(nameof(Get), new { id = response }); 
         }
 
         // PUT api/<LeaveAllocationsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult> Put(UpdateLeaveAllocationCommand leaveAllocation)
         {
+            await _mediator.Send(leaveAllocation);
+            return NoContent();
         }
 
         // DELETE api/<LeaveAllocationsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult> Delete(int id)
         {
+            var command = new DeleteLeaveAllocationCommand { Id = id };
+            await _mediator.Send(command);
+            return NoContent();
         }
     }
 }
